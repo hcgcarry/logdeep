@@ -2,6 +2,7 @@
 # 1. read origin logs
 # 2. extract label, time and origin event
 # 3. match event to the template
+####把已經寫好的template跟log event 做matching
 import re
 import pandas as pd
 from tqdm import tqdm
@@ -22,8 +23,9 @@ def data_read(filepath):
 def match(BGL):
     # match event to the template
     template = pd.read_csv(para["template"])
-
+    #event_template 並且不會有重複
     event = []
+    #key:template , value:event_id 並且不會有重複
     event2id = {}
 
     for i in range(template.shape[0]):
@@ -32,12 +34,16 @@ def match(BGL):
         event2id[event_template] = event_id
         event.append(event_template)
 
+    #紀錄所有錯誤的log
     error_log = []
+    #所有log的id ,如果有錯誤(匹配不到template)就給它一個error的id
     eventmap = []
     print("Matching...")
+    #將每一個log抓出來做比對
     for log in tqdm(BGL):
         log_event = " ".join(log[9:])
         for i,item in enumerate(event):
+            # r''  作用？
             if re.match(r''+item,log_event) and re.match(r''+item,log_event).span()[1] == len(log_event):
                 eventmap.append(event2id[item])
                 break

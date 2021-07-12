@@ -20,6 +20,8 @@ from logdeep.tools.utils import (save_parameters, seed_everything,
 
 
 class Trainer():
+    
+    # 準備好dataset (前處理等等）接下來就可以訓練了
     def __init__(self, model, options):
         self.model_name = options['model_name']
         self.save_dir = options['save_dir']
@@ -39,7 +41,7 @@ class Trainer():
         self.sample = options['sample']
         self.feature_num = options['feature_num']
 
-        os.makedirs(self.save_dir, exist_ok=True)
+        os.makedirs(self.save_dir ,exist_ok=True)
         if self.sample == 'sliding_window':
             train_logs, train_labels = sliding_window(self.data_dir,
                                                   datatype='train',
@@ -80,6 +82,7 @@ class Trainer():
                                        shuffle=False,
                                        pin_memory=True)
 
+        # 全部windows 切出來的個數
         self.num_train_log = len(train_dataset)
         self.num_valid_log = len(valid_dataset)
 
@@ -158,7 +161,7 @@ class Trainer():
         self.log['train']['epoch'].append(epoch)
         start = time.strftime("%H:%M:%S")
         lr = self.optimizer.state_dict()['param_groups'][0]['lr']
-        print("Starting epoch: %d | phase: train | ⏰: %s | Learning rate: %f" %
+        print("Starting epoch: %d | phase: train | : %s | Learning rate: %f" %
               (epoch, start, lr))
         self.log['train']['lr'].append(lr)
         self.log['train']['time'].append(start)
@@ -169,6 +172,8 @@ class Trainer():
         num_batch = len(self.train_loader)
         total_losses = 0
         for i, (log, label) in enumerate(tbar):
+            # features ：如果是deeplog 那就只有seq
+            # 如果是logAnomaly 那就會有 seq qua sem
             features = []
             for value in log.values():
                 features.append(value.clone().detach().to(self.device))
@@ -190,7 +195,7 @@ class Trainer():
         lr = self.optimizer.state_dict()['param_groups'][0]['lr']
         self.log['valid']['lr'].append(lr)
         start = time.strftime("%H:%M:%S")
-        print("Starting epoch: %d | phase: valid | ⏰: %s " % (epoch, start))
+        print("Starting epoch: %d | phase: valid | : %s " % (epoch, start))
         self.log['valid']['time'].append(start)
         total_losses = 0
         criterion = nn.CrossEntropyLoss()
@@ -215,6 +220,7 @@ class Trainer():
 
     def start_train(self):
         for epoch in range(self.start_epoch, self.max_epoch):
+            
             if epoch == 0:
                 self.optimizer.param_groups[0]['lr'] /= 32
             if epoch in [1, 2, 3, 4, 5]:

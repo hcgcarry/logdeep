@@ -39,6 +39,16 @@ def down_sample(logs, labels, sample_ratio):
     return sample_logs, sample_labels
 
 
+# sequentials:將 hdfs/hdfs_train 這個session 轉換長 sequential log ,並且做了
+# semantics:log -> template vector 的轉換 (透過預先存起來的word vector資訊) , 這是一個semantics vector sequence
+# quantitatives:計算一個windows裡面的各種event 數量
+'''
+return 
+                result_logs['Sequentials'].append(Sequential_pattern)
+                result_logs['Quantitatives'].append(Quantitative_pattern)
+                result_logs['Semantics'].append(Semantic_pattern)
+                label
+        '''
 def sliding_window(data_dir, datatype, window_size, sample_ratio=1):
     '''
     dataset structure

@@ -29,6 +29,7 @@ def generate(name):
     with open('../data/hdfs/' + name, 'r') as f:
         for ln in f.readlines():
             ln = list(map(lambda n: n - 1, map(int, ln.strip().split())))
+            # 如果len 小於window_size的時候 加一些padding
             ln = ln + [-1] * (window_size + 1 - len(ln))
             hdfs[tuple(ln)] = hdfs.get(tuple(ln), 0) + 1
             length += 1
@@ -57,18 +58,26 @@ class Predicter():
         model.eval()
         print('model_path: {}'.format(self.model_path))
         test_normal_loader, test_normal_length = generate('hdfs_test_normal')
+        print("test_normal_loader",test_normal_loader)
+    
         test_abnormal_loader, test_abnormal_length = generate(
             'hdfs_test_abnormal')
         TP = 0
         FP = 0
         # Test the model
         start_time = time.time()
+        # normal
         with torch.no_grad():
+            
             for line in tqdm(test_normal_loader.keys()):
                 for i in range(len(line) - self.window_size):
+                    
+                    # 可以應付hdfs 的log , 一個line 一個session ,這邊自己切seq
                     seq0 = line[i:i + self.window_size]
                     label = line[i + self.window_size]
                     seq1 = [0] * 28
+                    # log_conuter:計算重複的seq , 未來就不重複做predict
+                    
                     log_conuter = Counter(seq0)
                     for key in log_conuter:
                         seq1[key] = log_conuter[key]
@@ -84,6 +93,7 @@ class Predicter():
                     if label not in predicted:
                         FP += test_normal_loader[line]
                         break
+                    # abnormal
         with torch.no_grad():
             for line in tqdm(test_abnormal_loader.keys()):
                 for i in range(len(line) - self.window_size):

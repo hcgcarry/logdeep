@@ -19,7 +19,8 @@ options['window_size'] = 10
 options['device'] = "cpu"
 
 # Smaple
-options['sample'] = "sliding_window"
+#options['sample'] = "sliding_window"
+options['sample'] = "session_window"
 options['window_size'] = 10  # if fix_window
 
 # Features
@@ -36,12 +37,13 @@ options['num_layers'] = 2
 options['num_classes'] = 28
 
 # Train
+options['log_file'] = 2048
 options['batch_size'] = 2048
 options['accumulation_step'] = 1
 
 options['optimizer'] = 'adam'
 options['lr'] = 0.001
-options['max_epoch'] = 370
+options['max_epoch'] = 2 
 options['lr_step'] = (300, 350)
 options['lr_decay_ratio'] = 0.1
 

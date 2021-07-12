@@ -2,8 +2,16 @@ import os
 import pandas as pd
 import numpy as np
 para = {"window_size":0.5,"step_size":0.2,"structured_file":"bgl/BGL_100k_structured.csv","BGL_sequence":'bgl/BGL_sequence.csv'}
+'''
+anomaly的算法：將整段資料依序切成不相教的window,只要這個window裡面有一個
+的label是abnomal ,就說這一個window是abnomal
+至個abnomal的label是之前就label好了
 
+輸出的訊息會標示這個window裡面所有的log event id,和這個window是normal or abnomal
+'''
 def load_BGL():
+    """
+    """
 
     structured_file = para["structured_file"]
     # load data
@@ -13,12 +21,14 @@ def load_BGL():
     # calculate the time interval since the start time
     bgl_structured["seconds_since"] = (bgl_structured['time']-bgl_structured['time'][0]).dt.total_seconds().astype(int)
     # get the label for each log("-" is normal, else are abnormal label)
+    # astype(int) ? ,這一行得作用也要想一下
     bgl_structured['label'] = (bgl_structured['label'] != '-').astype(int)
     return bgl_structured
 
 
 def bgl_sampling(bgl_structured):
 
+    #不加values會？
     label_data,time_data,event_mapping_data = bgl_structured['label'].values,bgl_structured['seconds_since'].values,bgl_structured['event_id'].values
     log_size = len(label_data)
     # split into sliding window
@@ -55,12 +65,15 @@ def bgl_sampling(bgl_structured):
     # start_end_index_list is the  window divided by window_size and step_size, 
     # the front is the sequence number of the beginning of the window, 
     # and the end is the sequence number of the end of the window
+    #number of window
     inst_number = len(start_end_index_list)
     print('there are %d instances (sliding windows) in this dataset'%inst_number)
 
     # get all the log indexs in each time window by ranging from start_index to end_index
 
+    # 存地i個window有的log index
     expanded_indexes_list=[[] for i in range(inst_number)]
+    #存地i個window有的log label
     expanded_event_list=[[] for i in range(inst_number)]
 
     for i in range(inst_number):
@@ -76,12 +89,13 @@ def bgl_sampling(bgl_structured):
     for j in range(inst_number):
         label = 0   #0 represent success, 1 represent failure
         for k in expanded_indexes_list[j]:
-            # If one of the sequences is abnormal (1), the sequence is marked as abnormal
+            #!!!!!! important:If one of the sequences is abnormal (1), the sequence is marked as abnormal
             if label_data[k]:
                 label = 1
                 continue
         labels.append(label)
     assert inst_number == len(labels)
+    print("instances nums",inst_number)
     print("Among all instances, %d are anomalies"%sum(labels))
 
     BGL_sequence = pd.DataFrame(columns=['sequence','label'])

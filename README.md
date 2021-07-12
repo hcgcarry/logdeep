@@ -80,3 +80,14 @@ Model = loganomaly(input_size=options['input_size'],
 | DeepLog(unsupervised)| seq |0.9583 | 0.9330 | 0.9454 |
 | LogAnomaly(unsupervised) | seq+quan|0.9690 |0.9825 |0.9757 |
 | RobustLog(supervised)| semantic |0.9216 |0.9586 |0.9397 |
+
+
+
+## my note
+
+* deeplog_last.pth 最後train完model的結果
+
+
+### execute
+cd demo
+python3 deeplog.py train

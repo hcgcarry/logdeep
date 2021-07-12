@@ -7,6 +7,7 @@ import torch
 from torch.utils.data import Dataset, Sampler
 
 
+# 做個小處理 繼承 Dataset 讓 DataLoader可以load
 class log_dataset(Dataset):
     def __init__(self, logs, labels, seq=True, quan=False, sem=False):
         self.seq = seq
